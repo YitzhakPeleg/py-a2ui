@@ -205,7 +205,15 @@ class TestContactFormLifecycle:
         components = messages[1]["updateComponents"]["components"]
         types = {c["component"] for c in components}
         expected = {
-            "Card", "Column", "Row", "Text", "TextField",
-            "Button", "Icon", "CheckBox", "ChoicePicker", "Divider",
+            "Card",
+            "Column",
+            "Row",
+            "Text",
+            "TextField",
+            "Button",
+            "Icon",
+            "CheckBox",
+            "ChoicePicker",
+            "Divider",
         }
         assert types >= expected
