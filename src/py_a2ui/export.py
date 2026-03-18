@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from py_a2ui._registry import CHILD_FIELDS
+from py_a2ui._registry import CHILD_FIELDS, generate_id
 from py_a2ui.types.base import ComponentCommon
 
 
@@ -39,11 +39,7 @@ class _FlattenContext:
         self.seen_ids: set[str] = set()
 
     def assign_id(self, component: ComponentCommon) -> str:
-        if component.id is not None:
-            cid = component.id
-        else:
-            cid = f"{component.component.lower()}_{self.counter}"
-            self.counter += 1
+        cid, self.counter = generate_id(component, self.counter)
         if cid in self.seen_ids:
             msg = f"Duplicate component id: {cid!r}"
             raise ValueError(msg)
@@ -55,7 +51,13 @@ def _flatten_component(component: ComponentCommon, ctx: _FlattenContext) -> str:
     """Flatten a component and its children recursively. Returns the assigned ID."""
     cid = ctx.assign_id(component)
 
-    # Build the wire-format dict (uses aliases for keys)
+    # Build the wire-format dict. model_dump(by_alias=True) produces alias-keyed
+    # dicts for the full nested tree; we then overwrite child fields with flattened
+    # string IDs. This is acceptable because:
+    # 1. UI component trees are small in practice (hundreds, not millions of nodes).
+    # 2. All child-bearing fields (children, child, trigger, content, tabs) have no
+    #    alias, so field_name == JSON key. If a child field gains an alias, the
+    #    CHILD_FIELDS registry and this loop must be updated to use the alias.
     data = component.model_dump(by_alias=True, exclude_none=True)
     data["id"] = cid
 

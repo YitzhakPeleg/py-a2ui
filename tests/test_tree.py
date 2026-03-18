@@ -8,9 +8,13 @@ from py_a2ui import (
     Button,
     Card,
     Column,
+    DynamicChildTemplate,
     EventAction,
+    FunctionAction,
+    List,
     Text,
     UpdateComponentsMessage,
+    open_url,
 )
 from py_a2ui.tree import build_tree
 
@@ -153,3 +157,33 @@ def test_tree_custom_label():
         label="my-surface",
     )
     assert "my-surface" in output
+
+
+def test_tree_dynamic_child_template():
+    """DynamicChildTemplate is rendered as a template reference."""
+    output = _render_tree(
+        [
+            List(
+                id="items",
+                children=DynamicChildTemplate(component_id="item_row", path="/items"),
+            ),
+        ]
+    )
+    assert "List" in output
+    assert "template" in output
+    assert "item_row" in output
+    assert "/items" in output
+
+
+def test_tree_shows_function_action():
+    """FunctionAction is shown in tree labels."""
+    output = _render_tree(
+        [
+            Button(
+                id="btn",
+                child=Text(text="Go"),
+                action=FunctionAction(function_call=open_url("https://example.com")),
+            ),
+        ]
+    )
+    assert "fn:openUrl" in output

@@ -4,8 +4,9 @@ from rich.console import Console
 from rich.markup import escape
 from rich.tree import Tree
 
-from py_a2ui._registry import CHILD_FIELDS
+from py_a2ui._registry import CHILD_FIELDS, generate_id
 from py_a2ui.types.base import ComponentCommon
+from py_a2ui.types.children import DynamicChildTemplate
 
 
 def build_tree(components: list[ComponentCommon], label: str = "Surface") -> Tree:
@@ -22,10 +23,7 @@ class _Counter:
         self.value: int = 1
 
     def next_id(self, component: ComponentCommon) -> str:
-        if component.id is not None:
-            return component.id
-        cid = f"{component.component.lower()}_{self.value}"
-        self.value += 1
+        cid, self.value = generate_id(component, self.value)
         return cid
 
 
@@ -39,6 +37,8 @@ def _add_node(parent: Tree, component: ComponentCommon, counter: _Counter) -> No
     for child in children:
         if isinstance(child, ComponentCommon):
             _add_node(node, child, counter)
+        elif isinstance(child, DynamicChildTemplate):
+            node.add(f"[dim italic]template: {escape(child.component_id)} \\[{escape(child.path)}][/dim italic]")
         elif isinstance(child, str):
             node.add(f"[dim]{child!s}[/dim]")
 
@@ -61,12 +61,16 @@ def _format_label(comp: ComponentCommon, cid: str) -> str:
         if field_info is not None and variant != field_info.default:
             parts.append(f"[yellow]\\[{escape(str(variant))}][/yellow]")
 
-    # Action
+    # Action — show EventAction event name or FunctionAction function name
     action = getattr(comp, "action", None)
     if action is not None:
         event_name = getattr(action, "event_name", None)
         if event_name:
             parts.append(f"[magenta]-> {event_name}[/magenta]")
+        else:
+            fn_call = getattr(action, "function_call", None)
+            if fn_call is not None:
+                parts.append(f"[magenta]-> fn:{fn_call.call}[/magenta]")
 
     # ID
     parts.append(f"[dim]({cid})[/dim]")
@@ -91,6 +95,8 @@ def _get_children(component: ComponentCommon) -> list:
         elif field_type == "list":
             if isinstance(value, list):
                 children.extend(value)
+            elif isinstance(value, DynamicChildTemplate):
+                children.append(value)
 
         elif field_type == "tab_list":
             for tab in value:
