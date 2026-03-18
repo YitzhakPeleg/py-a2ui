@@ -1,6 +1,7 @@
 """E-commerce product card with data binding.
 
 Demonstrates:
+- Nested component composition
 - DataBinding for dynamic values from the data model
 - format_currency() and format_string() function helpers
 - Image component with variant
@@ -28,39 +29,30 @@ from py_a2ui import (
 msg = UpdateComponentsMessage(
     surface_id="product",
     components=[
-        # -- Layout --
-        Card(id="product_card", child="card_content"),
-        Column(id="card_content", children=["product_image", "product_title", "product_price", "actions_row"]),
-        # -- Product info (data-bound) --
-        Image(id="product_image", url=DataBinding(path="/product/imageUrl"), variant="largeFeature", fit="cover"),
-        Text(
-            id="product_title",
-            text=format_string("${name}"),
-            variant="h3",
-        ),
-        Text(
-            id="product_price",
-            text=format_currency("USD", decimals=2),
-            variant="body",
-        ),
-        # -- Action buttons --
-        Row(id="actions_row", children=["add_to_cart_btn", "details_btn"]),
-        Button(
-            id="add_to_cart_btn",
-            child="add_to_cart_label",
-            variant="primary",
-            action=EventAction(event_name="add_to_cart", context={"productId": DataBinding(path="/product/id")}),
-        ),
-        Text(id="add_to_cart_label", text="Add to Cart"),
-        Button(
-            id="details_btn",
-            child="details_label",
-            variant="borderless",
-            action=FunctionAction(function_call=open_url("https://shop.example.com/product")),
-        ),
-        Text(id="details_label", text="View Details"),
+        Card(id="product_card", child=Column(children=[
+            Image(url=DataBinding(path="/product/imageUrl"), variant="largeFeature", fit="cover"),
+            Text(text=format_string("${name}"), variant="h3"),
+            Text(text=format_currency("USD", decimals=2)),
+            Row(children=[
+                Button(
+                    child=Text(text="Add to Cart"),
+                    variant="primary",
+                    action=EventAction(
+                        event_name="add_to_cart",
+                        context={"productId": DataBinding(path="/product/id")},
+                    ),
+                ),
+                Button(
+                    child=Text(text="View Details"),
+                    variant="borderless",
+                    action=FunctionAction(function_call=open_url("https://shop.example.com/product")),
+                ),
+            ]),
+        ])),
     ],
 )
 
 if __name__ == "__main__":
-    print(msg.model_dump_json(by_alias=True, exclude_none=True, indent=2))
+    msg.print_tree()
+    print()
+    print(msg.export_json(indent=2))

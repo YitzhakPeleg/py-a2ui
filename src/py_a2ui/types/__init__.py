@@ -5,6 +5,9 @@ from py_a2ui.types.children import (
     ChildList as ChildList,
 )
 from py_a2ui.types.children import (
+    ChildRef as ChildRef,
+)
+from py_a2ui.types.children import (
     DynamicChildTemplate as DynamicChildTemplate,
 )
 from py_a2ui.types.children import (

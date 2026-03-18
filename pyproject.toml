@@ -1,6 +1,6 @@
 [project]
 name = "py-a2ui"
-version = "0.1.0"
+version = "0.2.0"
 description = "Pythonic Pydantic wrapper for A2UI components"
 readme = "README.md"
 license = "MIT"
@@ -17,6 +17,7 @@ classifiers = [
 ]
 dependencies = [
     "pydantic>=2.0",
+    "rich>=13.0",
 ]
 
 [project.urls]

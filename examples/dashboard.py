@@ -2,11 +2,16 @@
 
 Demonstrates:
 - Multiple server messages (CreateSurface + UpdateComponents + UpdateDataModel)
+- Nested component composition with export_json()
 - Tabs for dashboard sections
 - List with DynamicChildTemplate for data-driven children
 - format_number(), format_date(), pluralize() for display formatting
 - Modal for drill-down details
 - DataBinding for live values
+
+Note: DynamicChildTemplate targets (event_row, page_row) must be defined
+as separate top-level components with explicit IDs, since the template
+references them by string ID at runtime.
 """
 
 from py_a2ui import (
@@ -38,62 +43,52 @@ create = CreateSurfaceMessage(
 )
 
 # Step 2: Send component tree
+# Main nested tree + flat template components for DynamicChildTemplate
 components = UpdateComponentsMessage(
     surface_id="dashboard",
     components=[
-        # -- Top-level layout --
-        Column(id="root", children=["title", "stats_row", "content_tabs"]),
-        Text(id="title", text="Analytics Dashboard", variant="h1"),
-        # -- Stats summary row --
-        Row(id="stats_row", children=["total_users_card", "active_sessions_card", "revenue_card"]),
-        Card(id="total_users_card", child="total_users_text"),
-        Text(id="total_users_text", text=format_number(grouping=True), variant="h2"),
-        Card(id="active_sessions_card", child="active_sessions_text"),
-        Text(
-            id="active_sessions_text",
-            text=pluralize(one="session", other="sessions"),
-            variant="h2",
-        ),
-        Card(id="revenue_card", child="revenue_text"),
-        Text(id="revenue_text", text=DataBinding(path="/stats/revenue"), variant="h2"),
-        # -- Tabbed content --
-        Tabs(
-            id="content_tabs",
-            tabs=[
-                Tab(title="Recent Events", child="events_section"),
-                Tab(title="Top Pages", child="pages_section"),
-            ],
-        ),
-        # --- Events tab: dynamic list ---
-        Column(id="events_section", children=["events_list"]),
-        List(
-            id="events_list",
-            children=DynamicChildTemplate(component_id="event_row", path="/events"),
-        ),
+        # -- Main nested tree --
+        Column(id="root", children=[
+            Text(text="Analytics Dashboard", variant="h1"),
+            Row(children=[
+                Card(child=Text(text=format_number(grouping=True), variant="h2")),
+                Card(child=Text(text=pluralize(one="session", other="sessions"), variant="h2")),
+                Card(child=Text(text=DataBinding(path="/stats/revenue"), variant="h2")),
+            ]),
+            Tabs(tabs=[
+                Tab(
+                    title="Recent Events",
+                    child=Column(children=[
+                        List(children=DynamicChildTemplate(component_id="event_row", path="/events")),
+                    ]),
+                ),
+                Tab(
+                    title="Top Pages",
+                    child=Column(children=[
+                        List(children=DynamicChildTemplate(component_id="page_row", path="/pages")),
+                    ]),
+                ),
+            ]),
+        ]),
+        # -- Template components for DynamicChildTemplate (require explicit IDs) --
         Row(id="event_row", children=["event_name", "event_time"]),
         Text(id="event_name", text=DataBinding(path="/name")),
         Text(id="event_time", text=format_date("%b %d, %H:%M")),
-        # --- Pages tab with detail modal ---
-        Column(id="pages_section", children=["pages_list"]),
-        List(
-            id="pages_list",
-            children=DynamicChildTemplate(component_id="page_row", path="/pages"),
-        ),
         Row(id="page_row", children=["page_path", "page_views", "page_detail_modal"]),
         Text(id="page_path", text=DataBinding(path="/path")),
         Text(id="page_views", text=format_number(grouping=True)),
-        # -- Modal for page details --
-        Modal(id="page_detail_modal", trigger="detail_btn", content="detail_content"),
-        Button(
-            id="detail_btn",
-            child="detail_btn_label",
-            variant="borderless",
-            action=EventAction(event_name="open_detail"),
+        Modal(
+            id="page_detail_modal",
+            trigger=Button(
+                child=Text(text="Details"),
+                variant="borderless",
+                action=EventAction(event_name="open_detail"),
+            ),
+            content=Column(children=[
+                Text(text=DataBinding(path="/path"), variant="h3"),
+                Text(text="Detailed analytics for this page."),
+            ]),
         ),
-        Text(id="detail_btn_label", text="Details"),
-        Column(id="detail_content", children=["detail_title", "detail_body"]),
-        Text(id="detail_title", text=DataBinding(path="/path"), variant="h3"),
-        Text(id="detail_body", text="Detailed analytics for this page."),
     ],
 )
 
@@ -118,9 +113,12 @@ data = UpdateDataModelMessage(
 if __name__ == "__main__":
     import json
 
+    components.print_tree()
+    print()
+
     messages = [
         create.model_dump(by_alias=True, exclude_none=True),
-        components.model_dump(by_alias=True, exclude_none=True),
+        components.export(),
         data.model_dump(by_alias=True, exclude_none=True),
     ]
     print(json.dumps(messages, indent=2))

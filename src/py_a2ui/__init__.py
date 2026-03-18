@@ -114,6 +114,7 @@ from py_a2ui.components import (
 from py_a2ui.components import (
     Video as Video,
 )
+from py_a2ui.export import flatten as flatten
 from py_a2ui.functions import (
     and_ as and_,
 )
@@ -182,6 +183,9 @@ from py_a2ui.types import (
 )
 from py_a2ui.types import (
     ChildList as ChildList,
+)
+from py_a2ui.types import (
+    ChildRef as ChildRef,
 )
 from py_a2ui.types import (
     ComponentCommon as ComponentCommon,
