@@ -11,7 +11,7 @@ from py_a2ui.types.children import DynamicChildTemplate
 
 def build_tree(components: list[ComponentCommon], label: str = "Surface") -> Tree:
     """Build a Rich Tree from nested components."""
-    root = Tree(f"[bold]{label}[/bold]")
+    root = Tree(f"[bold]{escape(label)}[/bold]")
     counter = _Counter()
     for comp in components:
         _add_node(root, comp, counter)
@@ -40,18 +40,18 @@ def _add_node(parent: Tree, component: ComponentCommon, counter: _Counter) -> No
         elif isinstance(child, DynamicChildTemplate):
             node.add(f"[dim italic]template: {escape(child.component_id)} \\[{escape(child.path)}][/dim italic]")
         elif isinstance(child, str):
-            node.add(f"[dim]{child!s}[/dim]")
+            node.add(f"[dim]{escape(str(child))}[/dim]")
 
 
 def _format_label(comp: ComponentCommon, cid: str) -> str:
     """Format: ComponentType "text" [variant] -> action (id)"""
-    parts = [f"[bold cyan]{comp.component}[/bold cyan]"]
+    parts = [f"[bold cyan]{escape(comp.component)}[/bold cyan]"]
 
     # Text content
     text = getattr(comp, "text", None)
     if isinstance(text, str) and text:
         display = text[:30] + "..." if len(text) > 30 else text
-        parts.append(f'[green]"{display}"[/green]')
+        parts.append(f'[green]"{escape(display)}"[/green]')
 
     # Variant
     variant = getattr(comp, "variant", None)
@@ -66,14 +66,14 @@ def _format_label(comp: ComponentCommon, cid: str) -> str:
     if action is not None:
         event_name = getattr(action, "event_name", None)
         if event_name:
-            parts.append(f"[magenta]-> {event_name}[/magenta]")
+            parts.append(f"[magenta]-> {escape(str(event_name))}[/magenta]")
         else:
             fn_call = getattr(action, "function_call", None)
             if fn_call is not None:
-                parts.append(f"[magenta]-> fn:{fn_call.call}[/magenta]")
+                parts.append(f"[magenta]-> fn:{escape(fn_call.call)}[/magenta]")
 
     # ID
-    parts.append(f"[dim]({cid})[/dim]")
+    parts.append(f"[dim]({escape(cid)})[/dim]")
 
     return " ".join(parts)
 
