@@ -1,21 +1,9 @@
 """Flatten nested component trees to A2UI wire format."""
 
-from typing import Any, Literal
+from typing import Any
 
+from py_a2ui._registry import CHILD_FIELDS
 from py_a2ui.types.base import ComponentCommon
-
-# Registry of child-bearing fields per component type.
-# Each entry maps a component name to a list of (field_name, alias, field_type) tuples.
-# Both tree.py and export.py should use this registry as the single source of truth.
-_CHILD_FIELDS: dict[str, list[tuple[str, str, Literal["single", "list", "tab_list"]]]] = {
-    "Column": [("children", "children", "list")],
-    "Row": [("children", "children", "list")],
-    "List": [("children", "children", "list")],
-    "Card": [("child", "child", "single")],
-    "Button": [("child", "child", "single")],
-    "Modal": [("trigger", "trigger", "single"), ("content", "content", "single")],
-    "Tabs": [("tabs", "tabs", "tab_list")],
-}
 
 
 def flatten(components: list[ComponentCommon]) -> list[dict[str, Any]]:
@@ -63,14 +51,6 @@ class _FlattenContext:
         return cid
 
 
-def _resolve_alias(component_cls: type[ComponentCommon], field_name: str) -> str:
-    """Return the JSON alias for a field, falling back to the field name."""
-    field_info = component_cls.model_fields.get(field_name)
-    if field_info is not None and field_info.alias is not None:
-        return field_info.alias
-    return field_name
-
-
 def _flatten_component(component: ComponentCommon, ctx: _FlattenContext) -> str:
     """Flatten a component and its children recursively. Returns the assigned ID."""
     cid = ctx.assign_id(component)
@@ -80,9 +60,9 @@ def _flatten_component(component: ComponentCommon, ctx: _FlattenContext) -> str:
     data["id"] = cid
 
     comp_type = component.component  # e.g., "Column", "Button"
-    child_fields = _CHILD_FIELDS.get(comp_type, [])
+    child_fields = CHILD_FIELDS.get(comp_type, [])
 
-    for field_name, alias, field_type in child_fields:
+    for field_name, field_type in child_fields:
         value = getattr(component, field_name, None)
         if value is None:
             continue
@@ -90,7 +70,7 @@ def _flatten_component(component: ComponentCommon, ctx: _FlattenContext) -> str:
         if field_type == "single":
             if isinstance(value, ComponentCommon):
                 child_id = _flatten_component(value, ctx)
-                data[alias] = child_id
+                data[field_name] = child_id
             # else it's a string ID, already in data
 
         elif field_type == "list":
@@ -102,21 +82,18 @@ def _flatten_component(component: ComponentCommon, ctx: _FlattenContext) -> str:
                         new_children.append(child_id)
                     else:
                         new_children.append(child)  # string ID
-                data[alias] = new_children
+                data[field_name] = new_children
             # else it's DynamicChildTemplate, already dumped correctly
 
         elif field_type == "tab_list":
-            from py_a2ui.components.tabs import Tab
-
             new_tabs: list[dict[str, Any]] = []
             for tab in value:
-                assert isinstance(tab, Tab)  # Pydantic guarantees list[Tab]
                 tab_data = tab.model_dump(by_alias=True, exclude_none=True)
                 if isinstance(tab.child, ComponentCommon):
                     child_id = _flatten_component(tab.child, ctx)
                     tab_data["child"] = child_id
                 new_tabs.append(tab_data)
-            data[alias] = new_tabs
+            data[field_name] = new_tabs
 
     ctx.collected.append(data)
     return cid

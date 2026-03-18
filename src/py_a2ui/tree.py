@@ -4,7 +4,7 @@ from rich.console import Console
 from rich.markup import escape
 from rich.tree import Tree
 
-from py_a2ui.export import _CHILD_FIELDS
+from py_a2ui._registry import CHILD_FIELDS
 from py_a2ui.types.base import ComponentCommon
 
 
@@ -78,9 +78,9 @@ def _get_children(component: ComponentCommon) -> list:
     """Extract child components/refs from a component using the shared registry."""
     children: list = []
     comp_type = component.component
-    child_fields = _CHILD_FIELDS.get(comp_type, [])
+    child_fields = CHILD_FIELDS.get(comp_type, [])
 
-    for field_name, _alias, field_type in child_fields:
+    for field_name, field_type in child_fields:
         value = getattr(component, field_name, None)
         if value is None:
             continue
