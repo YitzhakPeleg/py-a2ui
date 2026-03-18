@@ -1,5 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 
+from py_a2ui.actions.function_call import FunctionCall
+
 
 class DataBinding(BaseModel):
     """Reference to a value in the client data model via JSON Pointer."""
@@ -9,10 +11,10 @@ class DataBinding(BaseModel):
     path: str
 
 
-# Forward-reference-friendly type aliases.
-# FunctionCall is defined in actions/ to avoid circular imports.
-# These unions are resolved at runtime via TYPE_CHECKING + Annotated.
-type DynamicString = str | DataBinding
-type DynamicNumber = int | float | DataBinding
-type DynamicBoolean = bool | DataBinding
-type DynamicStringList = list[str] | DataBinding
+# Dynamic value unions: literal | DataBinding | FunctionCall.
+# FunctionCall enables using built-in functions (formatString, required, etc.)
+# directly as component values or validation conditions.
+type DynamicString = str | DataBinding | FunctionCall
+type DynamicNumber = int | float | DataBinding | FunctionCall
+type DynamicBoolean = bool | DataBinding | FunctionCall
+type DynamicStringList = list[str] | DataBinding | FunctionCall
