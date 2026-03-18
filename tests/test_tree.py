@@ -26,70 +26,93 @@ def _render_tree(components, label="Surface"):
 
 def test_tree_includes_component_types():
     """Tree output includes component type names."""
-    output = _render_tree([
-        Column(id="root", children=[
-            Text(text="Hello", variant="h1"),
-        ]),
-    ])
+    output = _render_tree(
+        [
+            Column(
+                id="root",
+                children=[
+                    Text(text="Hello", variant="h1"),
+                ],
+            ),
+        ]
+    )
     assert "Column" in output
     assert "Text" in output
 
 
 def test_tree_includes_ids():
     """Tree output includes explicit and auto-generated IDs."""
-    output = _render_tree([
-        Column(id="my-root", children=[
-            Text(text="Title"),
-        ]),
-    ])
+    output = _render_tree(
+        [
+            Column(
+                id="my-root",
+                children=[
+                    Text(text="Title"),
+                ],
+            ),
+        ]
+    )
     assert "my-root" in output
     assert "text_1" in output
 
 
 def test_tree_includes_text_content():
     """Tree output includes text content in quotes."""
-    output = _render_tree([
-        Text(id="t", text="Hello World"),
-    ])
+    output = _render_tree(
+        [
+            Text(id="t", text="Hello World"),
+        ]
+    )
     assert '"Hello World"' in output
 
 
 def test_tree_truncates_long_text():
     """Long text content is truncated with ellipsis."""
     long_text = "A" * 50
-    output = _render_tree([
-        Text(id="t", text=long_text),
-    ])
+    output = _render_tree(
+        [
+            Text(id="t", text=long_text),
+        ]
+    )
     assert "..." in output
 
 
 def test_tree_shows_variant():
     """Non-default variant is shown."""
-    output = _render_tree([
-        Text(id="t", text="Title", variant="h1"),
-    ])
+    output = _render_tree(
+        [
+            Text(id="t", text="Title", variant="h1"),
+        ]
+    )
     assert "h1" in output
 
 
 def test_tree_shows_action_event():
     """Button action event name is shown."""
-    output = _render_tree([
-        Button(
-            id="btn",
-            child=Text(text="Go"),
-            action=EventAction(event_name="submit"),
-        ),
-    ])
+    output = _render_tree(
+        [
+            Button(
+                id="btn",
+                child=Text(text="Go"),
+                action=EventAction(event_name="submit"),
+            ),
+        ]
+    )
     assert "submit" in output
 
 
 def test_tree_nested_structure():
     """Tree renders nested hierarchy."""
-    output = _render_tree([
-        Column(id="root", children=[
-            Card(child=Text(text="Inner")),
-        ]),
-    ])
+    output = _render_tree(
+        [
+            Column(
+                id="root",
+                children=[
+                    Card(child=Text(text="Inner")),
+                ],
+            ),
+        ]
+    )
     assert "Column" in output
     assert "Card" in output
     assert "Text" in output
@@ -98,9 +121,11 @@ def test_tree_nested_structure():
 
 def test_tree_string_refs():
     """String child refs are rendered as dim text."""
-    output = _render_tree([
-        Column(id="root", children=["external_ref"]),
-    ])
+    output = _render_tree(
+        [
+            Column(id="root", children=["external_ref"]),
+        ]
+    )
     assert "external_ref" in output
 
 
@@ -109,9 +134,12 @@ def test_print_tree_method():
     msg = UpdateComponentsMessage(
         surface_id="test",
         components=[
-            Column(id="root", children=[
-                Text(text="Hello"),
-            ]),
+            Column(
+                id="root",
+                children=[
+                    Text(text="Hello"),
+                ],
+            ),
         ],
     )
     # Should not raise

@@ -24,10 +24,13 @@ def test_nested_construction_and_export():
     msg = UpdateComponentsMessage(
         surface_id="test",
         components=[
-            Column(id="root", children=[
-                Text(text="Hello", variant="h1"),
-                Card(child=Text(text="Inner")),
-            ]),
+            Column(
+                id="root",
+                children=[
+                    Text(text="Hello", variant="h1"),
+                    Card(child=Text(text="Inner")),
+                ],
+            ),
         ],
     )
     result = msg.export()
@@ -56,11 +59,14 @@ def test_nested_construction_and_export():
 def test_auto_id_generation_pattern():
     """Auto-generated IDs follow {type}_{counter} pattern."""
     components = [
-        Column(id="root", children=[
-            Text(text="First"),
-            Text(text="Second"),
-            Card(child=Text(text="Third")),
-        ]),
+        Column(
+            id="root",
+            children=[
+                Text(text="First"),
+                Text(text="Second"),
+                Card(child=Text(text="Third")),
+            ],
+        ),
     ]
     result = flatten(components)
     ids = [c["id"] for c in result]
@@ -80,9 +86,12 @@ def test_auto_id_generation_pattern():
 def test_explicit_id_preserved():
     """Explicit IDs on inner components are preserved."""
     components = [
-        Column(id="root", children=[
-            Text(id="my-title", text="Hello"),
-        ]),
+        Column(
+            id="root",
+            children=[
+                Text(id="my-title", text="Hello"),
+            ],
+        ),
     ]
     result = flatten(components)
     ids = [c["id"] for c in result]
@@ -116,21 +125,29 @@ def test_missing_root_id_raises():
 def test_duplicate_id_raises():
     """Duplicate IDs across the tree raise ValueError."""
     with pytest.raises(ValueError, match="Duplicate component id"):
-        flatten([
-            Column(id="root", children=[
-                Text(id="dupe", text="One"),
-                Text(id="dupe", text="Two"),
-            ]),
-        ])
+        flatten(
+            [
+                Column(
+                    id="root",
+                    children=[
+                        Text(id="dupe", text="One"),
+                        Text(id="dupe", text="Two"),
+                    ],
+                ),
+            ]
+        )
 
 
 def test_mixed_nesting_string_and_object():
     """Mix of string IDs and nested objects in children."""
     components = [
-        Column(id="root", children=[
-            "external_ref",
-            Text(text="Nested"),
-        ]),
+        Column(
+            id="root",
+            children=[
+                "external_ref",
+                Text(text="Nested"),
+            ],
+        ),
     ]
     result = flatten(components)
     root = next(c for c in result if c["id"] == "root")
@@ -163,9 +180,11 @@ def test_modal_nested_trigger_and_content():
                 child=Text(text="Open"),
                 action=EventAction(event_name="open"),
             ),
-            content=Column(children=[
-                Text(text="Modal body"),
-            ]),
+            content=Column(
+                children=[
+                    Text(text="Modal body"),
+                ]
+            ),
         ),
     ]
     result = flatten(components)
@@ -179,10 +198,13 @@ def test_modal_nested_trigger_and_content():
 def test_tabs_nested_children():
     """Tabs with nested child components in each tab."""
     components = [
-        Tabs(id="tabs", tabs=[
-            Tab(title="Tab 1", child=Column(children=[Text(text="Page 1")])),
-            Tab(title="Tab 2", child=Text(text="Page 2")),
-        ]),
+        Tabs(
+            id="tabs",
+            tabs=[
+                Tab(title="Tab 1", child=Column(children=[Text(text="Page 1")])),
+                Tab(title="Tab 2", child=Text(text="Page 2")),
+            ],
+        ),
     ]
     result = flatten(components)
     tabs_comp = next(c for c in result if c["id"] == "tabs")
@@ -210,13 +232,24 @@ def test_deeply_nested_tree():
     msg = UpdateComponentsMessage(
         surface_id="deep",
         components=[
-            Column(id="root", children=[
-                Card(child=Column(children=[
-                    Card(child=Column(children=[
-                        Text(text="Leaf"),
-                    ])),
-                ])),
-            ]),
+            Column(
+                id="root",
+                children=[
+                    Card(
+                        child=Column(
+                            children=[
+                                Card(
+                                    child=Column(
+                                        children=[
+                                            Text(text="Leaf"),
+                                        ]
+                                    )
+                                ),
+                            ]
+                        )
+                    ),
+                ],
+            ),
         ],
     )
     result = msg.export()
@@ -232,10 +265,13 @@ def test_deeply_nested_tree():
 def test_row_nested_children():
     """Row with nested components in children."""
     components = [
-        Row(id="row", children=[
-            Text(text="Left"),
-            Text(text="Right"),
-        ]),
+        Row(
+            id="row",
+            children=[
+                Text(text="Left"),
+                Text(text="Right"),
+            ],
+        ),
     ]
     result = flatten(components)
     row = next(c for c in result if c["id"] == "row")
@@ -245,10 +281,13 @@ def test_row_nested_children():
 
 def test_id_none_allowed_for_inner_components():
     """Inner components with id=None get auto-generated IDs."""
-    col = Column(id="root", children=[
-        Text(text="A"),
-        Text(text="B"),
-    ])
+    col = Column(
+        id="root",
+        children=[
+            Text(text="A"),
+            Text(text="B"),
+        ],
+    )
     assert col.children[0].id is None
     assert col.children[1].id is None
 

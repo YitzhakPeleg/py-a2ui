@@ -48,28 +48,39 @@ components = UpdateComponentsMessage(
     surface_id="dashboard",
     components=[
         # -- Main nested tree --
-        Column(id="root", children=[
-            Text(text="Analytics Dashboard", variant="h1"),
-            Row(children=[
-                Card(child=Text(text=format_number(grouping=True), variant="h2")),
-                Card(child=Text(text=pluralize(one="session", other="sessions"), variant="h2")),
-                Card(child=Text(text=DataBinding(path="/stats/revenue"), variant="h2")),
-            ]),
-            Tabs(tabs=[
-                Tab(
-                    title="Recent Events",
-                    child=Column(children=[
-                        List(children=DynamicChildTemplate(component_id="event_row", path="/events")),
-                    ]),
+        Column(
+            id="root",
+            children=[
+                Text(text="Analytics Dashboard", variant="h1"),
+                Row(
+                    children=[
+                        Card(child=Text(text=format_number(grouping=True), variant="h2")),
+                        Card(child=Text(text=pluralize(one="session", other="sessions"), variant="h2")),
+                        Card(child=Text(text=DataBinding(path="/stats/revenue"), variant="h2")),
+                    ]
                 ),
-                Tab(
-                    title="Top Pages",
-                    child=Column(children=[
-                        List(children=DynamicChildTemplate(component_id="page_row", path="/pages")),
-                    ]),
+                Tabs(
+                    tabs=[
+                        Tab(
+                            title="Recent Events",
+                            child=Column(
+                                children=[
+                                    List(children=DynamicChildTemplate(component_id="event_row", path="/events")),
+                                ]
+                            ),
+                        ),
+                        Tab(
+                            title="Top Pages",
+                            child=Column(
+                                children=[
+                                    List(children=DynamicChildTemplate(component_id="page_row", path="/pages")),
+                                ]
+                            ),
+                        ),
+                    ]
                 ),
-            ]),
-        ]),
+            ],
+        ),
         # -- Template components for DynamicChildTemplate (require explicit IDs) --
         Row(id="event_row", children=["event_name", "event_time"]),
         Text(id="event_name", text=DataBinding(path="/name")),
@@ -84,10 +95,12 @@ components = UpdateComponentsMessage(
                 variant="borderless",
                 action=EventAction(event_name="open_detail"),
             ),
-            content=Column(children=[
-                Text(text=DataBinding(path="/path"), variant="h3"),
-                Text(text="Detailed analytics for this page."),
-            ]),
+            content=Column(
+                children=[
+                    Text(text=DataBinding(path="/path"), variant="h3"),
+                    Text(text="Detailed analytics for this page."),
+                ]
+            ),
         ),
     ],
 )

@@ -29,26 +29,33 @@ from py_a2ui import (
 msg = UpdateComponentsMessage(
     surface_id="product",
     components=[
-        Card(id="product_card", child=Column(children=[
-            Image(url=DataBinding(path="/product/imageUrl"), variant="largeFeature", fit="cover"),
-            Text(text=format_string("${name}"), variant="h3"),
-            Text(text=format_currency("USD", decimals=2)),
-            Row(children=[
-                Button(
-                    child=Text(text="Add to Cart"),
-                    variant="primary",
-                    action=EventAction(
-                        event_name="add_to_cart",
-                        context={"productId": DataBinding(path="/product/id")},
+        Card(
+            id="product_card",
+            child=Column(
+                children=[
+                    Image(url=DataBinding(path="/product/imageUrl"), variant="largeFeature", fit="cover"),
+                    Text(text=format_string("${name}"), variant="h3"),
+                    Text(text=format_currency("USD", decimals=2)),
+                    Row(
+                        children=[
+                            Button(
+                                child=Text(text="Add to Cart"),
+                                variant="primary",
+                                action=EventAction(
+                                    event_name="add_to_cart",
+                                    context={"productId": DataBinding(path="/product/id")},
+                                ),
+                            ),
+                            Button(
+                                child=Text(text="View Details"),
+                                variant="borderless",
+                                action=FunctionAction(function_call=open_url("https://shop.example.com/product")),
+                            ),
+                        ]
                     ),
-                ),
-                Button(
-                    child=Text(text="View Details"),
-                    variant="borderless",
-                    action=FunctionAction(function_call=open_url("https://shop.example.com/product")),
-                ),
-            ]),
-        ])),
+                ]
+            ),
+        ),
     ],
 )
 
