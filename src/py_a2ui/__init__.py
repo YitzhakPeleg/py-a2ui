@@ -161,7 +161,7 @@ from py_a2ui.messages import (
     A2UI_VERSION as A2UI_VERSION,
 )
 from py_a2ui.messages import (
-    CallFunctionMessage as CallFunctionMessage,
+    A2UIMessage as A2UIMessage,
 )
 from py_a2ui.messages import (
     CreateSurfaceMessage as CreateSurfaceMessage,

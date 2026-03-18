@@ -1,17 +1,14 @@
-from typing import Any, Literal
+from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
 
-A2UI_VERSION = "v0.10"
+from py_a2ui.messages.base import A2UI_VERSION as A2UI_VERSION
+from py_a2ui.messages.base import A2UIMessage
 
 
-class CreateSurfaceMessage(BaseModel):
+class CreateSurfaceMessage(A2UIMessage):
     """Initiates a new UI surface."""
 
-    model_config = ConfigDict(validate_by_name=True, validate_by_alias=True)
-
-    version: Literal["v0.10"] = A2UI_VERSION
-    type: Literal["createSurface"] = "createSurface"
     surface_id: str = Field(alias="surfaceId")
     catalog_id: str = Field(alias="catalogId")
     theme: dict[str, Any] | None = None

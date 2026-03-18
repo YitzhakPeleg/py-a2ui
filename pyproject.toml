@@ -20,6 +20,7 @@ classifiers = [
 dependencies = [
     "pydantic>=2.0",
     "rich>=13.0",
+    "inflection>=0.5",
 ]
 
 [project.urls]

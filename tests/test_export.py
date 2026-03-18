@@ -34,11 +34,11 @@ def test_nested_construction_and_export():
         ],
     )
     result = msg.export()
-    assert result["version"] == "v0.10"
-    assert result["type"] == "updateComponents"
-    assert result["surfaceId"] == "test"
+    assert result["version"] == "v0.9"
+    payload = result["updateComponents"]
+    assert payload["surfaceId"] == "test"
 
-    comps = result["components"]
+    comps = payload["components"]
     # Children are emitted before their parent (DFS post-order, left-to-right).
     ids = [c["id"] for c in comps]
     assert "root" in ids
@@ -217,8 +217,10 @@ def test_export_json():
     import json
 
     parsed = json.loads(json_str)
-    assert parsed["surfaceId"] == "test"
-    assert parsed["components"][0]["id"] == "t1"
+    assert parsed["version"] == "v0.9"
+    payload = parsed["updateComponents"]
+    assert payload["surfaceId"] == "test"
+    assert payload["components"][0]["id"] == "t1"
 
 
 def test_deeply_nested_tree():
@@ -247,7 +249,7 @@ def test_deeply_nested_tree():
         ],
     )
     result = msg.export()
-    comps = result["components"]
+    comps = result["updateComponents"]["components"]
     # Should have: Text, Column, Card, Column, Card, Column(root) = 6
     assert len(comps) == 6
     # All should have IDs
