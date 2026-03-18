@@ -39,13 +39,7 @@ def test_nested_construction_and_export():
     assert result["surfaceId"] == "test"
 
     comps = result["components"]
-    # Flattened order: Text (leaf), Text (leaf), Card, Column (DFS post-order-ish)
-    # Actually: walk root first, encounter children, recurse into each
-    # The root is processed first: it walks children, flattens them, then appends itself
-    # Wait - looking at export.py, children are flattened BEFORE the parent is appended
-    # So order is: text_1, text_2 (inner Card child), card_3, root (Column)
-
-    # Let's just verify the IDs and structure
+    # Children are emitted before their parent (DFS post-order, left-to-right).
     ids = [c["id"] for c in comps]
     assert "root" in ids
 

@@ -52,10 +52,18 @@ def format_date(pattern: str) -> FunctionCall:
 
 
 def pluralize(
-    *, zero: str = "", one: str = "", two: str = "", few: str = "", many: str = "", other: str = ""
+    *,
+    zero: str | None = None,
+    one: str | None = None,
+    two: str | None = None,
+    few: str | None = None,
+    many: str | None = None,
+    other: str | None = None,
 ) -> FunctionCall:
     """Return a localized string based on CLDR plural category."""
     args = {
-        k: v for k, v in {"zero": zero, "one": one, "two": two, "few": few, "many": many, "other": other}.items() if v
+        k: v
+        for k, v in {"zero": zero, "one": one, "two": two, "few": few, "many": many, "other": other}.items()
+        if v is not None
     }
     return FunctionCall(call="pluralize", args=args or None, return_type=ReturnType.STRING)

@@ -4,6 +4,7 @@ from rich.console import Console
 from rich.markup import escape
 from rich.tree import Tree
 
+from py_a2ui.export import _CHILD_FIELDS
 from py_a2ui.types.base import ComponentCommon
 
 
@@ -74,34 +75,28 @@ def _format_label(comp: ComponentCommon, cid: str) -> str:
 
 
 def _get_children(component: ComponentCommon) -> list:
-    """Extract child components/refs from a component."""
+    """Extract child components/refs from a component using the shared registry."""
     children: list = []
+    comp_type = component.component
+    child_fields = _CHILD_FIELDS.get(comp_type, [])
 
-    # Check for children (Column, Row, List)
-    child_list = getattr(component, "children", None)
-    if isinstance(child_list, list):
-        children.extend(child_list)
+    for field_name, _alias, field_type in child_fields:
+        value = getattr(component, field_name, None)
+        if value is None:
+            continue
 
-    # Check for child (Card, Button)
-    child = getattr(component, "child", None)
-    if child is not None:
-        children.append(child)
+        if field_type == "single":
+            children.append(value)
 
-    # Check for trigger/content (Modal)
-    trigger = getattr(component, "trigger", None)
-    if trigger is not None:
-        children.append(trigger)
-    content = getattr(component, "content", None)
-    if content is not None:
-        children.append(content)
+        elif field_type == "list":
+            if isinstance(value, list):
+                children.extend(value)
 
-    # Check for tabs (Tabs)
-    tabs = getattr(component, "tabs", None)
-    if tabs is not None:
-        for tab in tabs:
-            tab_child = getattr(tab, "child", None)
-            if tab_child is not None:
-                children.append(tab_child)
+        elif field_type == "tab_list":
+            for tab in value:
+                tab_child = getattr(tab, "child", None)
+                if tab_child is not None:
+                    children.append(tab_child)
 
     return children
 
