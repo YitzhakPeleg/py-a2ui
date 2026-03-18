@@ -14,7 +14,7 @@ def test_button_with_event_action():
         "component": "Button",
         "child": "label",
         "variant": "primary",
-        "action": {"eventName": "submit"},
+        "action": {"event": {"name": "submit"}},
     }
 
 

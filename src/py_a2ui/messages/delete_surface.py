@@ -1,15 +1,9 @@
-from typing import Literal
+from pydantic import Field
 
-from pydantic import BaseModel, ConfigDict, Field
-
-from py_a2ui.messages.create_surface import A2UI_VERSION
+from py_a2ui.messages.base import A2UIMessage
 
 
-class DeleteSurfaceMessage(BaseModel):
+class DeleteSurfaceMessage(A2UIMessage):
     """Removes a UI surface."""
 
-    model_config = ConfigDict(validate_by_name=True, validate_by_alias=True)
-
-    version: Literal["v0.10"] = A2UI_VERSION
-    type: Literal["deleteSurface"] = "deleteSurface"
     surface_id: str = Field(alias="surfaceId")

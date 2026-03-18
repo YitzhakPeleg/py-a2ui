@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field
 
-from py_a2ui.types.base import ComponentId
+from py_a2ui.types.base import ComponentCommon, ComponentId
 
 
 class DynamicChildTemplate(BaseModel):
@@ -12,5 +12,6 @@ class DynamicChildTemplate(BaseModel):
     path: str
 
 
-type StaticChildList = list[ComponentId]
+type ChildRef = ComponentId | ComponentCommon
+type StaticChildList = list[ChildRef]
 type ChildList = StaticChildList | DynamicChildTemplate

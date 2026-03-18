@@ -2,7 +2,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from py_a2ui.types.base import ComponentCommon, ComponentId
+from py_a2ui.types.base import ComponentCommon
+from py_a2ui.types.children import ChildRef
 from py_a2ui.types.dynamic import DynamicString
 
 
@@ -10,7 +11,7 @@ class Tab(BaseModel):
     model_config = ConfigDict(validate_by_name=True, validate_by_alias=True)
 
     title: DynamicString
-    child: ComponentId
+    child: ChildRef
 
 
 class Tabs(ComponentCommon):

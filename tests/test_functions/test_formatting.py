@@ -79,6 +79,12 @@ def test_pluralize_with_zero():
     assert fc.args == {"zero": "no items", "one": "item", "other": "items"}
 
 
+def test_pluralize_empty_string_preserved():
+    """Empty string is a valid plural form (meaning 'show nothing')."""
+    fc = pluralize(zero="", one="item", other="items")
+    assert fc.args == {"zero": "", "one": "item", "other": "items"}
+
+
 def test_pluralize_no_args():
     fc = pluralize()
     assert fc.args is None

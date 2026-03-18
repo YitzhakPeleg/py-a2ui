@@ -2,7 +2,7 @@
 
 Pythonic [Pydantic v2](https://docs.pydantic.dev/) wrapper for [A2UI](https://a2ui.org/) components.
 
-Build type-safe A2UI component trees in Python and serialize them to the A2UI JSON wire format.
+Build type-safe A2UI component trees in Python using nested composition and serialize them to the A2UI JSON wire format.
 
 ## Installation
 
@@ -23,23 +23,35 @@ from py_a2ui import (
 msg = UpdateComponentsMessage(
     surface_id="booking",
     components=[
-        Column(id="root", children=["title", "card1"]),
-        Text(id="title", text="Book Your Table", variant="h1"),
-        Card(id="card1", child="form"),
-        Column(id="form", children=["submit_btn"]),
-        Button(
-            id="submit_btn",
-            child="submit_label",
-            variant="primary",
-            action=EventAction(event_name="submit"),
-        ),
-        Text(id="submit_label", text="Reserve"),
+        Column(id="root", children=[
+            Text(text="Book Your Table", variant="h1"),
+            Card(child=Column(children=[
+                Button(
+                    child=Text(text="Reserve"),
+                    variant="primary",
+                    action=EventAction(event_name="submit"),
+                ),
+            ])),
+        ]),
     ],
 )
 
-# camelCase JSON matching the A2UI wire format
-print(msg.model_dump_json(by_alias=True, exclude_none=True, indent=2))
+# Visual tree for debugging
+msg.print_tree()
+# booking
+# └── Column (root)
+#     ├── Text "Book Your Table" [h1] (text_1)
+#     └── Card (card_2)
+#         └── Column (column_3)
+#             └── Button [primary] → submit (button_4)
+#                 └── Text "Reserve" (text_5)
+
+# Flat A2UI wire-format JSON
+print(msg.export_json(indent=2))
 ```
+
+Only top-level components (directly in `components=[...]`) require an explicit `id`.
+Inner components get auto-generated IDs like `text_1`, `card_2`, etc.
 
 ## Data Binding
 
@@ -78,7 +90,6 @@ Built-in functions return `FunctionCall` instances with **input validation at co
 from py_a2ui import TextField, CheckRule, required, length, email, regex
 
 field = TextField(
-    id="email",
     label="Email",
     checks=[
         CheckRule(condition=required(), message="Required"),
@@ -112,12 +123,12 @@ items = Text(id="items", text=pluralize(one="item", other="items"))
 ### Navigation
 
 ```python
-from py_a2ui import Button, FunctionAction, open_url
+from py_a2ui import Button, Text, FunctionAction, open_url
 
 # URL is validated as a well-formed HTTP(S) URL
 btn = Button(
     id="link",
-    child="label",
+    child=Text(text="Go"),
     action=FunctionAction(function_call=open_url("https://example.com")),
 )
 ```
@@ -166,13 +177,23 @@ delete = DeleteSurfaceMessage(surface_id="app")
 
 ## JSON Output
 
-All models serialize to camelCase JSON matching the A2UI wire format:
+Use `export()` and `export_json()` to get the flat A2UI wire format:
 
 ```python
-# As a dict
+# As a dict (flat wire format)
+data = msg.export()
+
+# As a JSON string (flat wire format)
+json_str = msg.export_json(indent=2)
+```
+
+The nested Python representation is available via standard Pydantic methods:
+
+```python
+# As a dict (nested Python structure)
 data = msg.model_dump(by_alias=True, exclude_none=True)
 
-# As a JSON string
+# As a JSON string (nested Python structure)
 json_str = msg.model_dump_json(by_alias=True, exclude_none=True, indent=2)
 ```
 

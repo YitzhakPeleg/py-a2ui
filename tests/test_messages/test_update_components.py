@@ -28,15 +28,15 @@ def test_update_components_booking_example():
             Text(id="submit_label", text="Reserve"),
         ],
     )
-    data = msg.model_dump(by_alias=True, exclude_none=True)
+    data = msg.export()
 
-    assert data["version"] == "v0.10"
-    assert data["type"] == "updateComponents"
-    assert data["surfaceId"] == "booking"
-    assert len(data["components"]) == 6
+    assert data["version"] == "v0.9"
+    payload = data["updateComponents"]
+    assert payload["surfaceId"] == "booking"
+    assert len(payload["components"]) == 6
 
     # Verify root component
-    root = data["components"][0]
+    root = payload["components"][0]
     assert root["component"] == "Column"
     assert root["children"] == ["title", "card1"]
 
@@ -46,7 +46,9 @@ def test_update_components_json_roundtrip():
         surface_id="test",
         components=[Text(id="root", text="Hello")],
     )
-    json_str = msg.model_dump_json(by_alias=True, exclude_none=True)
+    json_str = msg.export_json()
     parsed = json.loads(json_str)
-    assert parsed["surfaceId"] == "test"
-    assert parsed["components"][0]["text"] == "Hello"
+    assert parsed["version"] == "v0.9"
+    payload = parsed["updateComponents"]
+    assert payload["surfaceId"] == "test"
+    assert payload["components"][0]["text"] == "Hello"
