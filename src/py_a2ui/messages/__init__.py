@@ -2,7 +2,7 @@ from typing import Annotated, Any
 
 from pydantic import Discriminator, Tag
 
-from py_a2ui.messages.base import A2UI_VERSION as A2UI_VERSION
+from py_a2ui.messages.base import A2UI_CURRENT_VERSION as A2UI_CURRENT_VERSION
 from py_a2ui.messages.base import A2UIMessage as A2UIMessage
 from py_a2ui.messages.create_surface import CreateSurfaceMessage as CreateSurfaceMessage
 from py_a2ui.messages.delete_surface import DeleteSurfaceMessage as DeleteSurfaceMessage
