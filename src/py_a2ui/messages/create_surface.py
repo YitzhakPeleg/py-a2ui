@@ -2,7 +2,7 @@ from typing import Any
 
 from pydantic import Field
 
-from py_a2ui.messages.base import A2UI_VERSION as A2UI_VERSION
+from py_a2ui.messages.base import A2UI_CURRENT_VERSION as A2UI_CURRENT_VERSION
 from py_a2ui.messages.base import A2UIMessage
 
 

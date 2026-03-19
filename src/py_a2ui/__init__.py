@@ -158,7 +158,7 @@ from py_a2ui.functions import (
     required as required,
 )
 from py_a2ui.messages import (
-    A2UI_VERSION as A2UI_VERSION,
+    A2UI_CURRENT_VERSION as A2UI_CURRENT_VERSION,
 )
 from py_a2ui.messages import (
     A2UIMessage as A2UIMessage,

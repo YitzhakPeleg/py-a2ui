@@ -48,4 +48,4 @@ def test_create_surface_export_json():
 
 def test_message_version_property():
     msg = DeleteSurfaceMessage(surface_id="s1")
-    assert msg.version == "v0.9"
+    assert msg.version == "0.9"
